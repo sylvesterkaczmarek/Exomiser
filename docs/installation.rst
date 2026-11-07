@@ -12,6 +12,17 @@ Installing Exomiser involves four steps:
 3. **Configure** Exomiser to find your data files
 4. **Run** a test analysis to confirm everything works
 
+.. warning::
+
+    The Exomiser program version (e.g. 14.1.0) and data version (e.g. 2602)
+    are separate. Updating the data does not update the program. New data
+    can contain ClinVar terms that an older program cannot read, even when
+    the database format is unchanged. Check compatibility for the specific
+    program and data releases you intend to use; compatibility with one
+    data release does not guarantee compatibility with later releases.
+    For the ``UNCERTAIN_RISK_ALLELE`` error with older programs, see
+    :ref:`ClinVar data compatibility troubleshooting <clinvar-data-compatibility>`.
+
 
 Software and Hardware Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -399,6 +410,44 @@ files. To activate CADD in an analysis, include ``CADD`` in the
 
 Troubleshooting
 ~~~~~~~~~~~~~~~
+
+.. _clinvar-data-compatibility:
+
+**Unrecognised ClinVar term**
+
+An older Exomiser program may fail when reading newer ClinVar data with:
+
+.. code-block:: text
+
+    java.lang.IllegalArgumentException: No enum constant org.monarchinitiative.exomiser.core.model.pathogenicity.ClinVarData.ClinSig.UNCERTAIN_RISK_ALLELE
+
+This was reported for program version 14.0.0 with data version 2602 in
+`issue #653 <https://github.com/exomiser/Exomiser/issues/653>`_. The data
+contains a ClinVar term that the program does not recognise. The
+`2512 <https://github.com/exomiser/Exomiser/discussions/626>`_ and
+`2602 <https://github.com/exomiser/Exomiser/discussions/640>`_ data release
+announcements list 14.0.0 as compatible, but that does not cover this
+ClinVar vocabulary incompatibility.
+
+1. Upgrade the **program**, not just the data. A user in
+   `issue #653 reported that upgrading to 14.1.0 resolved this error
+   <https://github.com/exomiser/Exomiser/issues/653#issuecomment-5290988824>`_.
+   Download the `14.1.0 distribution
+   <https://github.com/exomiser/Exomiser/releases/tag/14.1.0>`_ or choose a
+   newer program release compatible with your intended data release.
+2. In the upgraded installation's ``application.properties``, set
+   ``exomiser.data-directory`` to your extracted data directory. Match
+   ``exomiser.hg19.data-version`` and/or ``exomiser.hg38.data-version`` and
+   ``exomiser.phenotype.data-version`` to the corresponding data folder
+   names (see :ref:`data-directory`). Changing these settings alone does
+   not add support for new ClinVar terms to an older program.
+3. Ensure your launch command or script uses the upgraded program, then
+   rerun the analysis. Follow that program release's command-line usage;
+   version 15 introduced the ``analyse`` subcommand, which version 14
+   does not use.
+
+Use a program that understands the data's ClinVar vocabulary; do not
+remove or relabel ClinVar terms to make older software read the data.
 
 **Java not found**
 
